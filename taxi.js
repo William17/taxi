@@ -4,7 +4,7 @@
   // async calling a function
   // `setImmediate` or `function(fn) { setTimeout(fn, 0) }` in browser
   // `process.nextTick` in node
-  var asyncCall=process.nextTick;
+  var asyncCall = process.nextTick;
 
   // 2.3
   // The Promise Resolution Procedure
@@ -46,13 +46,13 @@
               called = true;
               resolve(promise, y);
             }
-          }, function(y) {
+          }, function(r) {
             // 2.3.3.3.2
             // If/when rejectPromise is called with a reason r,
             // reject promise with r.
             if (!called) {
               called = true;
-              promise.reject(y);
+              promise.reject(r);
             }
           });
         }else {
@@ -100,33 +100,29 @@
         });
       }
     };
-    this.fulfill = function(value) {
+
+    function _complete(state, value){
       if (!_state) {
-        _state = 1;
+        _state = state;
         _value = value;
         asyncCall(function() {
-          _onFulfills.forEach(function(fn) {
+          var handlers = state == 1 ? _onFulfills : _onRejects;
+          handlers.forEach(function(fn) {
             if (typeof fn === 'function') {
               fn(value);
             }
           });
           _onFulfills = null;
-        });
-      }
-    };
-    this.reject = function(value) {
-      if (!_state) {
-        _state = 2;
-        _value = value;
-        asyncCall(function() {
-          _onRejects.forEach(function(fn) {
-            if (typeof fn === 'function') {
-              fn(value);
-            }
-          });
           _onRejects = null;
         });
       }
+    }
+
+    this.fulfill = function(value) {
+      _complete(1, value);
+    };
+    this.reject = function(value) {
+      _complete(2, value);
     };
   }
 
@@ -139,39 +135,52 @@
       // 2.2.7
       // then must return a promise
       var taxi = new Taxi();
-      this.done(function(value) {
+
+      // 2.2.2
+      // If onFulfilled is a function:
+      // 2.2.2.1
+      // it must be called after promise is fulfilled,
+      // with promise’s value as its first argument.
+      // 2.2.3
+      // If onRejected is a function,
+      // 2.2.3.1
+      // it must be called after promise is rejected,
+      // with promise’s reason as its first argument.
+      this.done(function(x) {
         if (typeof onFulfilled === 'function') {
-          // 2.2.2
-          // If onFulfilled is a function:
-          // 2.2.2.1
-          // it must be called after promise is fulfilled,
-          // with promise’s value as its first argument.
           try {
-            resolve(taxi, onFulfilled(value));
+            // 2.2.7.1
+            // If either onFulfilled or onRejected returns a value x,
+            // run the Promise Resolution Procedure [[Resolve]](promise2, x).
+            resolve(taxi, onFulfilled(x));
           }catch (e) {
+            // 2.2.7.2
+            // If either onFulfilled or onRejected throws an exception e,
+            // promise2 must be rejected with e as the reason.
             taxi.reject(e);
           }
         }else {
-          // 2.2.2.1
+          // 2.2.1.1
           // If onFulfilled is not a function, it must be ignored.
-          taxi.fulfill(value);
+          taxi.fulfill(x);
         }
-      }, function(value) {
-        // 2.2.3
-        // If onRejected is a function,
-        // 2.2.3.1
-        // it must be called after promise is rejected,
-        // with promise’s reason as its first argument.
+      }, function(x) {
         if (typeof onRejected === 'function') {
           try {
-            resolve(taxi, onRejected(value));
+            // 2.2.7.1
+            // If either onFulfilled or onRejected returns a value x,
+            // run the Promise Resolution Procedure [[Resolve]](promise2, x).
+            resolve(taxi, onRejected(x));
           }catch (e) {
+            // 2.2.7.2
+            // If either onFulfilled or onRejected throws an exception e,
+            // promise2 must be rejected with e as the reason.
             taxi.reject(e);
           }
         }else {
           // 2.2.1.2
           // If onRejected is not a function, it must be ignored.
-          taxi.reject(value);
+          taxi.reject(x);
         }
       });
       return taxi;
