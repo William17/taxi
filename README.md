@@ -19,7 +19,7 @@ Just for learning.
   - [.reject(dynamic reason)](#promise-reject)  
 
 #Test  
-`npm run promises-aplus-test`  
+`npm run test`  
 
 #License  
 MIT:http://william17.mit-license.org
