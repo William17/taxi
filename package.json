@@ -1,0 +1,20 @@
+{
+  "name": "Taxi",
+  "version": "1.0.0",
+  "description": "Example Promises/A+ implementation. Simple and annotated with the spec. Good for learning.",
+  "main": "taxi.js",
+  "scripts": {
+    "test": "istanbul cover promises-aplus-tests ./test/promises-aplus-test-adapter.js"
+  },
+  "author": {
+    "name": "William Leung",
+    "email": "superbill2012@qq.com",
+    "url": "https://github.com/William17"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "istanbul": "^0.3.21",
+    "promises-aplus-tests": "^2.1.1"
+  },
+  "dependencies": {}
+}
