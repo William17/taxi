@@ -162,6 +162,9 @@
         }else {
           // 2.2.1.1
           // If onFulfilled is not a function, it must be ignored.
+          // 2.2.7.3
+          // If onFulfilled is not a function and promise1 is fulfilled, 
+          // promise2 must be fulfilled with the same value as promise1.
           taxi.fulfill(x);
         }
       }, function(x) {
@@ -180,6 +183,9 @@
         }else {
           // 2.2.1.2
           // If onRejected is not a function, it must be ignored.
+          // 2.2.7.4
+          // If onRejected is not a function and promise1 is rejected, 
+          // promise2 must be rejected with the same reason as promise1.
           taxi.reject(x);
         }
       });
